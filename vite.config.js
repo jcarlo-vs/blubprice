@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { configDotenv } from "dotenv";
+import dotenv from "dotenv";
 
-// Ensure `dotenv` is required for environment variables
-configDotenv();
+// Load environment variables from .env file
+dotenv.config();
 
 export default defineConfig({
   plugins: [react()],
