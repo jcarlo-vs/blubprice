@@ -26,33 +26,33 @@ function App() {
 
     // Set the font size relative to the canvas size
     const fontSize = canvasWidth * 0.02; // 2% of the canvas width
-    ctx.font = `${fontSize}px Arial`;
+    ctx.font = `${fontSize}px Verdana`;
     ctx.textAlign = "center";
 
-    // Define text styles
     ctx.fillStyle = "white"; // Text color
     ctx.strokeStyle = "black"; // Border color
     ctx.lineWidth = 10; // Border thickness
-    // Draw the "PRICE" text at specified positions
+
+    // Define text styles and positions
     const positions = [
       {
         x: canvasWidth * 0.2,
         y: canvasHeight * 0.895,
-        price: `$${rest[0]?.pepe}`,
+        price: `$${rest[0].pepe}`,
         color: "#006451",
         font: "bold 18px Verdana",
       },
       {
         x: canvasWidth * 0.43,
         y: canvasHeight * 0.9,
-        price: `$${rest[0]?.brett}`,
+        price: `$${rest[0].brett}`,
         color: "#4B2E2A",
         font: "bold 18px Verdana",
       },
       {
         x: canvasWidth * 0.67,
         y: canvasHeight * 0.9,
-        price: `$${rest[0]?.ponke}`,
+        price: `$${rest[0].ponke}`,
         color: "#4B2E2A",
         font: "bold 18px Verdana",
       },
@@ -66,11 +66,9 @@ function App() {
     ];
 
     positions.forEach((pos) => {
-      // Draw text border
       ctx.strokeStyle = pos.color;
       ctx.font = pos.font;
       ctx.strokeText(pos.price, pos.x, pos.y);
-      // Draw text fill
       ctx.fillText(pos.price, pos.x, pos.y);
     });
   };
@@ -99,6 +97,7 @@ function App() {
       const { data } = await axios.get(
         "/api/v2/cryptocurrency/quotes/latest?id=24478,29150,29743"
       );
+      console.log("Meme Data:", data); // Log data to verify its structure
       const result = [data.data].map((token) => {
         return {
           pepe: formatValue(Number(token[24478].quote.USD.market_cap)),
@@ -106,9 +105,10 @@ function App() {
           brett: formatValue(Number(token[29743].quote.USD.market_cap)),
         };
       });
+      console.log("Formatted Result:", result); // Log formatted result
       setRest(result);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching meme data:", error);
     }
   };
 
@@ -118,21 +118,23 @@ function App() {
   }, []); // Empty dependency array means this effect runs once when the component mounts
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const image = new Image();
-    image.src = blubLogo;
+    if (data && rest) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      const image = new Image();
+      image.src = blubLogo;
 
-    const draw = () => drawImageWithText(canvas, ctx, image);
+      const draw = () => drawImageWithText(canvas, ctx, image);
 
-    image.onload = draw;
+      image.onload = draw;
 
-    // Redraw the canvas when the window is resized
-    window.addEventListener("resize", draw);
+      // Redraw the canvas when the window is resized
+      window.addEventListener("resize", draw);
 
-    // Cleanup the event listener on component unmount
-    return () => window.removeEventListener("resize", draw);
-  }, [data, rest]); // Only redraw the canvas when `data` changes
+      // Cleanup the event listener on component unmount
+      return () => window.removeEventListener("resize", draw);
+    }
+  }, [data, rest]); // Add `rest` as a dependency
 
   return <canvas ref={canvasRef}></canvas>;
 }
