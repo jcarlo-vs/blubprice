@@ -47,7 +47,7 @@ function App() {
       {
         x: canvasWidth * 0.9,
         y: canvasHeight * 0.9,
-        price: `$${(data?.mc / 1e6).toFixed(1)}M`,
+        price: `$${data}`,
         color: "#00008B",
       },
     ];
@@ -65,9 +65,11 @@ function App() {
   const getBlubData = async () => {
     try {
       const { data } = await axios.get(
-        "https://blubapi.vercel.app/api/birdeye"
+        "https://blubapi.vercel.app/api/dexScreenerApi"
       );
-      const blub = data.data.data.tokens.find((token) => token.name === "BLUB");
+      console.log(data);
+      const blub = formatValue(Number(data.data.pairs[0].fdv));
+
       setData(blub);
     } catch (error) {
       console.log("Error fetching blub data:", error);
