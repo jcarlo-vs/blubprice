@@ -70,3 +70,9 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+canvas {
+  border: 1px solid black; /* Temporary border to visualize the canvas */
+  display: block;
+  margin: 0 auto; /* Center canvas horizontally */
+}

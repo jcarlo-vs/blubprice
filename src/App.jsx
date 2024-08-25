@@ -11,21 +11,17 @@ function App() {
   const canvasRef = useRef(null);
 
   const drawImageWithText = (canvas, ctx, image) => {
-    // Calculate the aspect ratio of the image
+    console.log("Drawing on canvas");
+
     const aspectRatio = image.width / image.height;
-
-    // Set the canvas size based on the window size
-    const canvasWidth = window.innerWidth * 0.5; // 50% of the window width
+    const canvasWidth = window.innerWidth * 0.5;
     const canvasHeight = canvasWidth / aspectRatio;
-
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    // Draw the image
     ctx.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 
-    // Set the font size relative to the canvas size
-    const fontSize = canvasWidth * 0.02; // 2% of the canvas width
+    const fontSize = canvasWidth * 0.02;
     ctx.font = `${fontSize}px Verdana`;
     ctx.textAlign = "center";
 
@@ -33,7 +29,6 @@ function App() {
     ctx.strokeStyle = "black"; // Border color
     ctx.lineWidth = 10; // Border thickness
 
-    // Define text styles and positions
     const positions = [
       {
         x: canvasWidth * 0.2,
@@ -72,40 +67,29 @@ function App() {
       ctx.fillText(pos.price, pos.x, pos.y);
     });
   };
-
   const getBlubData = async () => {
     try {
       const { data } = await axios.get(
-        "https://public-api.birdeye.so/defi/tokenlist?sort_by=v24hUSD&sort_type=desc",
-        {
-          method: "GET",
-          headers: {
-            "x-chain": "sui",
-            "X-API-KEY": import.meta.env.VITE_BIRD_EYE_API_KEY,
-          },
-        }
+        "https://blubapi.vercel.app/api/birdeye"
       );
-      const blub = data.data.tokens.find((token) => token.name === "BLUB");
+      console.log("Blub Data:", data);
+      const blub = data.data.data.tokens.find((token) => token.name === "BLUB");
       setData(blub);
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching blub data:", error);
     }
   };
 
   const getMemeData = async () => {
     try {
-      const { data } = await axios.get(
-        "/api/v2/cryptocurrency/quotes/latest?id=24478,29150,29743"
-      );
-      console.log("Meme Data:", data); // Log data to verify its structure
-      const result = [data.data].map((token) => {
-        return {
-          pepe: formatValue(Number(token[24478].quote.USD.market_cap)),
-          ponke: formatValue(Number(token[29150].quote.USD.market_cap)),
-          brett: formatValue(Number(token[29743].quote.USD.market_cap)),
-        };
-      });
-      console.log("Formatted Result:", result); // Log formatted result
+      const { data } = await axios.get("https://blubapi.vercel.app/api/cmc");
+      console.log("Meme Data:", data);
+      const result = [data.data.data].map((token) => ({
+        pepe: formatValue(Number(token[24478].quote.USD.market_cap)),
+        ponke: formatValue(Number(token[29150].quote.USD.market_cap)),
+        brett: formatValue(Number(token[29743].quote.USD.market_cap)),
+      }));
+      console.log("Formatted Result:", result);
       setRest(result);
     } catch (error) {
       console.error("Error fetching meme data:", error);
@@ -120,22 +104,30 @@ function App() {
   useEffect(() => {
     if (data && rest) {
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      const image = new Image();
-      image.src = blubLogo;
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        const image = new Image();
+        image.src = blubLogo;
 
-      const draw = () => drawImageWithText(canvas, ctx, image);
+        image.onload = () => {
+          console.log("Image loaded successfully");
+          drawImageWithText(
+            canvasRef.current,
+            canvasRef.current.getContext("2d"),
+            image
+          );
+        };
 
-      image.onload = draw;
+        image.onerror = (error) => {
+          console.error("Error loading image:", error);
+        };
 
-      // Redraw the canvas when the window is resized
-      window.addEventListener("resize", draw);
-
-      // Cleanup the event listener on component unmount
-      return () => window.removeEventListener("resize", draw);
+        window.addEventListener("resize", () =>
+          drawImageWithText(canvas, ctx, image)
+        );
+      }
     }
-  }, [data, rest]); // Add `rest` as a dependency
-
+  }, [data, rest]); // Add `rest` and `data` as dependencies
   return <canvas ref={canvasRef}></canvas>;
 }
 
