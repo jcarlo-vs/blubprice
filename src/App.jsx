@@ -38,21 +38,21 @@ function App() {
       {
         x: canvasWidth * 0.2,
         y: canvasHeight * 0.895,
-        price: `$${rest[0].pepe}`,
+        price: `$${rest[0]?.pepe}`,
         color: "#006451",
         font: "bold 18px Verdana",
       },
       {
         x: canvasWidth * 0.43,
         y: canvasHeight * 0.9,
-        price: `$${rest[0].brett}`,
+        price: `$${rest[0]?.brett}`,
         color: "#4B2E2A",
         font: "bold 18px Verdana",
       },
       {
         x: canvasWidth * 0.67,
         y: canvasHeight * 0.9,
-        price: `$${rest[0].ponke}`,
+        price: `$${rest[0]?.ponke}`,
         color: "#4B2E2A",
         font: "bold 18px Verdana",
       },
@@ -132,7 +132,7 @@ function App() {
 
     // Cleanup the event listener on component unmount
     return () => window.removeEventListener("resize", draw);
-  }, [data]); // Only redraw the canvas when `data` changes
+  }, [data, rest]); // Only redraw the canvas when `data` changes
 
   return <canvas ref={canvasRef}></canvas>;
 }
