@@ -68,7 +68,7 @@ function App() {
         "https://blubapi.vercel.app/api/dexScreenerApi"
       );
       console.log(data);
-      const blub = formatValue(Number(data.data.pairs[0].fdv));
+      const blub = formatValue(Number(data.data.pairs[0].marketCap));
 
       setData(blub);
     } catch (error) {
